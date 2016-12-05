@@ -1,0 +1,71 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>OpenLayer BuenosAires</title>
+    <link rel="stylesheet" href="qgis.css" type="text/css">
+    <link rel="stylesheet" href="google.css" type="text/css">
+    <script src="OpenLayers.js"></script>
+    <script src="OlOverviewMarker.js"></script>
+    <script type="text/javascript">
+
+        var oloMarker; // OpenLayer Overview Marker
+        var map;
+        var loadEnd;
+
+        function init() {
+            //http://gis.stackexchange.com/questions/86280/add-tms-layer-to-openlayers
+
+
+
+            var options = {
+                    controls: [
+                        new OpenLayers.Control.Navigation(),
+                        new OpenLayers.Control.PanZoomBar(),
+                        new OpenLayers.Control.LayerSwitcher({'ascending':false}),
+                        new OpenLayers.Control.Permalink(),
+                        new OpenLayers.Control.ScaleLine(),
+                        new OpenLayers.Control.Permalink('permalink'),
+                        new OpenLayers.Control.MousePosition(),
+                        new OpenLayers.Control.OverviewMap(),
+                        new OpenLayers.Control.KeyboardDefaults()
+                    ],
+                    projection: new OpenLayers.Projection("EPSG:900913"),
+                    displayProjection: new OpenLayers.Projection("EPSG:4326"),
+                    units: "m",
+                    maxResolution: 156543.0339,
+                    maxExtent: new OpenLayers.Bounds(-20037508, -20037508, 20037508, 20037508.34),
+                    theme: null,
+                    adjustZoom: function(zoom) { return zoom; }
+
+                    };
+            
+            map = new OpenLayers.Map('map', options)
+
+            //END
+
+            //http://dev.openlayers.org/docs/files/OpenLayers/Layer/TMS-js.html
+            var layer = new OpenLayers.Layer.TMS(
+                "My Buenos Aires Layer",
+                "http://tiles1.usig.buenosaires.gob.ar/mapcache/tms/", // service endpoint
+                {                 
+                    numZoomLevels: 20,
+                    attribution: '<a href="//mapa.buenosaires.gob.ar/">USIG</a> (GCBA)', layername: "amba_con_transporte_3857@GoogleMapsCompatible", type: "png"} // required properties
+            );
+
+            layer.events.register("loadend", layer, function() {
+              loadEnd = true;
+            });
+
+            map.addLayer(layer);
+            map.addControl(new OpenLayers.Control.LayerSwitcher());
+            // Zoom level numbering depends on metadata from Bing, which is not yet loaded.
+            map.setCenter(new OpenLayers.LonLat(-58.3900979,-34.604916),2);
+
+            
+            oloMarker = new OlOverviewMarker(map, getPathUpper(document.URL) + '/x.png');
+        }
+    </script>
+  </head>
+  <body onload="init()">
+    <div id="map"></div>
+  </body>
+</html>
